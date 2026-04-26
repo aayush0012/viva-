@@ -2,49 +2,74 @@
 using namespace std;
 
 int main(){
-    int n;
-    cin >> n;
+    int n; 
+    cin>>n;
 
-    vector<int> at(n), bt(n), rt(n);
-    for(int i=0;i<n;i++) cin >> at[i];
-    for(int i=0;i<n;i++){
-        cin >> bt[i];
-        rt[i] = bt[i];
+    vector<pair<int,int>> vp;
+
+    // ek saath push (arrival, burst)
+    for(int i =0; i<n ; i++){
+        int at, bt;
+        cin >> at >> bt;
+        vp.push_back({at, bt});
     }
 
-    vector<int> ct(n), tat(n), wt(n);
+    // original burst store (important)
+    vector<int> original_bt(n);
+    for(int i=0;i<n;i++) original_bt[i] = vp[i].second;
 
-    int time = 0, completed = 0;
+    int current_time =0; 
+    vector<int>ct(n); 
+    float avg =0; 
 
-    while(completed < n){
-        int idx = -1, mn = INT_MAX;
+    int number = 0; 
+    vector<int>visited(n,0); 
 
-        for(int i=0;i<n;i++){
-            if(at[i] <= time && rt[i] > 0 && rt[i] < mn){
-                mn = rt[i];
-                idx = i;
+    while(number<n){
+        int mini = INT_MAX ; 
+        int index = -1; 
+
+        for(int i = 0; i<n; i++){
+            int arrival = vp[i].first;
+
+            if(arrival<=current_time && vp[i].second > 0 && vp[i].second < mini){
+                mini = vp[i].second;
+                index=i; 
             }
         }
 
-        if(idx == -1){
-            time++;
-            continue;
+        if(index==-1){
+            current_time++; 
         }
+        else{
+            // ek unit execute
+            vp[index].second--;  
+            current_time++;
 
-        rt[idx]--;
-        time++;
-
-        if(rt[idx] == 0){
-            ct[idx] = time;
-            tat[idx] = ct[idx] - at[idx];
-            wt[idx] = tat[idx] - bt[idx];
-            completed++;
+            // finish
+            if(vp[index].second == 0){
+                ct[index]=current_time;
+                visited[index]=1;  
+                number++; 
+            }
         }
     }
 
-    for(int i=0;i<n;i++){
+    vector<int> tat(n), wt(n);
+
+    for(int i=0; i<n ;i++){
+        tat[i] = ct[i] - vp[i].first;
+        wt[i] = tat[i] - original_bt[i];
+
+        avg += wt[i];
+
         cout << "P" << i << " CT:" << ct[i]
              << " TAT:" << tat[i]
              << " WT:" << wt[i] << endl;
     }
+
+    float ans= avg/n; 
+    cout << "Average Waiting Time: " << ans << endl;
+
+    return 0;
 }

@@ -9,11 +9,8 @@ int main(){
     for(int i=0;i<n;i++) cin >> at[i];
     for(int i=0;i<n;i++) cin >> bt[i];
     for(int i=0;i<n;i++) cin >> pr[i];
-
     vector<int> ct(n), tat(n), wt(n), done(n,0);
-
     int time = 0, completed = 0;
-
     while(completed < n){
         int idx = -1, best = INT_MAX;
 
@@ -23,12 +20,10 @@ int main(){
                 idx = i;
             }
         }
-
         if(idx == -1){
             time++;
             continue;
         }
-
         time += bt[idx];
         ct[idx] = time;
         tat[idx] = ct[idx] - at[idx];
@@ -43,4 +38,4 @@ int main(){
              << " TAT:" << tat[i]
              << " WT:" << wt[i] << endl;
     }
-}s
+}

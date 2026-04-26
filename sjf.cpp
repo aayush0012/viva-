@@ -2,44 +2,66 @@
 using namespace std;
 
 int main(){
-    int n;
-    cin >> n;
+    int n; 
+    cin>>n;
 
-    vector<int> at(n), bt(n);
-    for(int i=0;i<n;i++) cin >> at[i];
-    for(int i=0;i<n;i++) cin >> bt[i];
+    vector<pair<int,int>> vp;
 
-    vector<int> ct(n), tat(n), wt(n), done(n,0);
+    for(int i =0; i<n ; i++){
+        int at, bt;
+        cin >> at >> bt;
+        vp.push_back({at, bt});
+    }
 
-    int time = 0, completed = 0;
+    int current_time =0; 
+    vector<int>ct(n); 
+    float avg =0; 
 
-    while(completed < n){
-        int idx = -1, mn = INT_MAX;
+    int number = 0; 
+    vector<int>visited(n,0); 
 
-        for(int i=0;i<n;i++){
-            if(at[i] <= time && !done[i] && bt[i] < mn){
-                mn = bt[i];
-                idx = i;
+    while(number<n){
+        int mini = INT_MAX ; 
+        int time  = -1; 
+        int index = -1; 
+
+        for(int i = 0; i<n; i++){
+            int arrival = vp[i].first;
+            int burst = vp[i].second; 
+
+            if(arrival<=current_time && burst<mini && !visited[i]){
+                mini=burst ;
+                time = arrival; 
+                index=i; 
             }
         }
 
-        if(idx == -1){
-            time++;
-            continue;
+        if(time==-1){
+            current_time++; 
         }
-
-        time += bt[idx];
-        ct[idx] = time;
-        tat[idx] = ct[idx] - at[idx];
-        wt[idx] = tat[idx] - bt[idx];
-
-        done[idx] = 1;
-        completed++;
+        else{
+            current_time+=mini ;
+            ct[index]=current_time;
+            visited[index]=1;  
+            number++; 
+        }
     }
 
-    for(int i=0;i<n;i++){
+    vector<int> tat(n), wt(n);
+
+    for(int i=0; i<n ;i++){
+        tat[i] = ct[i] - vp[i].first;
+        wt[i] = tat[i] - vp[i].second;
+
+        avg += wt[i];
+
         cout << "P" << i << " CT:" << ct[i]
              << " TAT:" << tat[i]
              << " WT:" << wt[i] << endl;
     }
+
+    float ans= avg/n; 
+    cout << "Average Waiting Time: " << ans << endl;
+
+    return 0;
 }
