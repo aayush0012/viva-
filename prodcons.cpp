@@ -1,68 +1,69 @@
 #include <iostream>
-#include <windows.h>
+#include <vector>
+
 using namespace std;
+int mutex = 1;     
+int full = 0;      
+int empty_slots;  
+int x = 0;         
 
-#define BUFFER_SIZE 5
-
-int buffer[BUFFER_SIZE];
-int in = 0, out = 0;
-
-HANDLE mutex1;   // for mutual exclusion
-HANDLE empty;    // counts empty slots
-HANDLE full;     // counts filled slots
-
-// Producer
-DWORD WINAPI producer(LPVOID arg) {
-    for(int i = 1; i <= 10; i++) {
-        WaitForSingleObject(empty, INFINITE);
-        WaitForSingleObject(mutex1, INFINITE);
-
-        buffer[in] = i;
-        cout << "Produced: " << i << endl;
-        in = (in + 1) % BUFFER_SIZE;
-
-        ReleaseMutex(mutex1);
-        ReleaseSemaphore(full, 1, NULL);
-
-        Sleep(500);
-    }
-    return 0;
+void producer() {
+    --mutex;        
+    ++full;         
+    --empty_slots; 
+    x++;          
+    cout << "\nProducer produces item " << x;
+    ++mutex;      
 }
 
-// Consumer
-DWORD WINAPI consumer(LPVOID arg) {
-    for(int i = 1; i <= 10; i++) {
-        WaitForSingleObject(full, INFINITE);
-        WaitForSingleObject(mutex1, INFINITE);
-
-        int item = buffer[out];
-        cout << "Consumed: " << item << endl;
-        out = (out + 1) % BUFFER_SIZE;
-
-        ReleaseMutex(mutex1);
-        ReleaseSemaphore(empty, 1, NULL);
-
-        Sleep(800);
-    }
-    return 0;
+void consumer() {
+    --mutex;       
+    --full;         
+    ++empty_slots; 
+    cout << "\nConsumer consumes item " << x;
+    x--;            
+    ++mutex;       
 }
 
 int main() {
-    mutex1 = CreateMutex(NULL, FALSE, NULL);
-    empty = CreateSemaphore(NULL, BUFFER_SIZE, BUFFER_SIZE, NULL);
-    full = CreateSemaphore(NULL, 0, BUFFER_SIZE, NULL);
+    int n, choice;
+    cout << "Enter buffer size: ";
+    cin >> n;
+    empty_slots = n; 
 
-    HANDLE p = CreateThread(NULL, 0, producer, NULL, 0, NULL);
-    HANDLE c = CreateThread(NULL, 0, consumer, NULL, 0, NULL);
+    cout << "\n1. PRODUCER"
+         << "\n2. CONSUMER"
+         << "\n3. EXIT";
 
-    WaitForSingleObject(p, INFINITE);
-    WaitForSingleObject(c, INFINITE);
+    while (true) {
+        cout << "\n\nEnter your choice: ";
+        cin >> choice;
 
-    CloseHandle(p);
-    CloseHandle(c);
-    CloseHandle(mutex1);
-    CloseHandle(empty);
-    CloseHandle(full);
+        switch (choice) {
+            case 1:
+                if ((mutex == 1) && (empty_slots != 0)) {
+                    producer();
+                } else {
+                    cout << "Buffer is full! Cannot produce.";
+                }
+                break;
+
+            case 2:
+                if ((mutex == 1) && (full != 0)) {
+                    consumer();
+                } else {
+                    cout << "Buffer is empty! Cannot consume.";
+                }
+                break;
+
+            case 3:
+                exit(0);
+                break;
+                
+            default:
+                cout << "Invalid choice!";
+        }
+    }
 
     return 0;
 }
