@@ -1,32 +1,46 @@
-#include<bits/stdc++.h>
-#include<thread>
-#include<mutex>
+#include <iostream>
 using namespace std;
 
-mutex forks[5];
+int forks[5] = {1, 1, 1, 1, 1}; // 1 = free, 0 = busy
 
 void philosopher(int i){
-    while(true){
-        cout << "Philosopher " << i << " is thinking\n";
+    if(forks[i] == 1 && forks[(i+1)%5] == 1){
+        // pick forks
+        forks[i] = 0;
+        forks[(i+1)%5] = 0;
 
-        forks[i].lock();
-        forks[(i+1)%5].lock();
+        cout << "\nPhilosopher " << i << " is eating";
 
-        cout << "Philosopher " << i << " is eating\n";
-
-        forks[i].unlock();
-        forks[(i+1)%5].unlock();
+        // release forks
+        forks[i] = 1;
+        forks[(i+1)%5] = 1;
+    }
+    else{
+        cout << "\nPhilosopher " << i << " is waiting (forks not available)";
     }
 }
 
 int main(){
-    thread t[5];
+    int choice;
 
-    for(int i = 0; i < 5; i++){
-        t[i] = thread(philosopher, i);
+    cout << "\nDining Philosopher Problem";
+    cout << "\n0 to 4 philosopher numbers";
+    cout << "\n5 to exit";
+
+    while(true){
+        cout << "\n\nEnter philosopher number: ";
+        cin >> choice;
+
+        if(choice >= 0 && choice < 5){
+            philosopher(choice);
+        }
+        else if(choice == 5){
+            break;
+        }
+        else{
+            cout << "Invalid input";
+        }
     }
 
-    for(int i = 0; i < 5; i++){
-        t[i].join();
-    }
+    return 0;
 }

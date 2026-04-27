@@ -1,39 +1,76 @@
-#include<bits/stdc++.h>
-#include<thread>
-#include<mutex>
+#include <iostream>
 using namespace std;
 
-mutex mtx;
 int readCount = 0;
+int mutex = 1;   // for readCount protection
+int wrt = 1;     // writer lock
 
 void reader(int id){
-    mtx.lock();
-    readCount++;
-    if(readCount == 1){
-        cout << "Writer blocked\n";
-    }
-    mtx.unlock();
+    if(mutex == 1){
+        mutex = 0;
+        readCount++;
 
-    cout << "Reader " << id << " is reading\n";
+        if(readCount == 1){
+            wrt = 0; // writer blocked
+        }
 
-    mtx.lock();
-    readCount--;
-    if(readCount == 0){
-        cout << "Writer allowed\n";
+        mutex = 1;
+
+        cout << "\nReader " << id << " is reading";
+
+        mutex = 0;
+        readCount--;
+
+        if(readCount == 0){
+            wrt = 1; // writer allowed
+        }
+
+        mutex = 1;
     }
-    mtx.unlock();
+    else{
+        cout << "\nReader " << id << " is waiting";
+    }
 }
 
 void writer(int id){
-    mtx.lock();
-    cout << "Writer " << id << " is writing\n";
-    mtx.unlock();
+    if(wrt == 1){
+        wrt = 0;
+
+        cout << "\nWriter " << id << " is writing";
+
+        wrt = 1;
+    }
+    else{
+        cout << "\nWriter " << id << " is waiting";
+    }
 }
 
 int main(){
-    thread r1(reader,1), r2(reader,2), w1(writer,1);
+    int choice, id;
 
-    r1.join();
-    r2.join();
-    w1.join();
+    cout << "\n1. Reader\n2. Writer\n3. Exit";
+
+    while(true){
+        cout << "\nEnter choice: ";
+        cin >> choice;
+
+        if(choice == 1){
+            cout << "Enter Reader ID: ";
+            cin >> id;
+            reader(id);
+        }
+        else if(choice == 2){
+            cout << "Enter Writer ID: ";
+            cin >> id;
+            writer(id);
+        }
+        else if(choice == 3){
+            break;
+        }
+        else{
+            cout << "Invalid choice";
+        }
+    }
+
+    return 0;
 }
