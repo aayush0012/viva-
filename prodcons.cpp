@@ -1,67 +1,41 @@
 #include <iostream>
-#include <vector>
-
 using namespace std;
-int mutex = 1;     
-int full = 0;      
-int empty_slots;  
-int x = 0;         
-
-void producer() {
-    --mutex;        
-    ++full;         
-    --empty_slots; 
-    x++;          
-    cout << "\nProducer produces item " << x;
-    ++mutex;      
-}
-
-void consumer() {
-    --mutex;       
-    --full;         
-    ++empty_slots; 
-    cout << "\nConsumer consumes item " << x;
-    x--;            
-    ++mutex;       
-}
 
 int main() {
-    int n, choice;
+    int n;
     cout << "Enter buffer size: ";
     cin >> n;
-    empty_slots = n; 
 
-    cout << "\n1. PRODUCER"
-         << "\n2. CONSUMER"
-         << "\n3. EXIT";
+    int buffer = 0; // current items
+
+    int choice;
 
     while (true) {
-        cout << "\n\nEnter your choice: ";
+        cout << "\n1. Produce\n2. Consume\n3. Exit";
+        cout << "\nEnter choice: ";
         cin >> choice;
 
-        switch (choice) {
-            case 1:
-                if ((mutex == 1) && (empty_slots != 0)) {
-                    producer();
-                } else {
-                    cout << "Buffer is full! Cannot produce.";
-                }
-                break;
-
-            case 2:
-                if ((mutex == 1) && (full != 0)) {
-                    consumer();
-                } else {
-                    cout << "Buffer is empty! Cannot consume.";
-                }
-                break;
-
-            case 3:
-                exit(0);
-                break;
-                
-            default:
-                cout << "Invalid choice!";
+        if (choice == 1) {
+            if (buffer < n) {
+                buffer++;
+                cout << "Produced item. Total = " << buffer;
+            } else {
+                cout << "Buffer Full!";
+            }
+        }
+        else if (choice == 2) {
+            if (buffer > 0) {
+                cout << "Consumed item " << buffer;
+                buffer--;
+            } else {
+                cout << "Buffer Empty!";
+            }
+        }
+        else if (choice == 3) {
+            break;
+        }
+        else {
+            cout << "Invalid choice";
         }
     }
 

@@ -31,14 +31,12 @@ int main(){
                 }
             }
 
-            // LRU replace
             if(!found){
                 int lru_index = -1;
                 int min_last_used = INT_MAX;
                 for(int j = 0; j < f; j++){
                     int last_used = -1;
 
-                    // find last used position
                     for(int k = i-1; k >= 0; k--){
                         if(pages[k] == frame[j]){
                             last_used = k;

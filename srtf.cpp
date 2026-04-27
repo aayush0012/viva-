@@ -7,7 +7,6 @@ int main(){
 
     vector<pair<int,int>> vp;
 
-    // ek saath push (arrival, burst)
     for(int i =0; i<n ; i++){
         int at, bt;
         cin >> at >> bt;
